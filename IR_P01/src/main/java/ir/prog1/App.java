@@ -22,9 +22,9 @@ public class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
     // java -jar IR P01.jar [path to document folder] [path to index folder] [VS/OK] [query]
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException {
 
-        if(args.length != 2) {
+        if(args.length != 3) {
             LOGGER.error("Usage: java -jar IR_PO1.jar [path to document folder] [path to index folder]");
             throw new IllegalArgumentException("Incorrect number of arguments provided (2 expected, " + args.length
                     + " provided): " + Arrays.toString(args));
@@ -32,6 +32,7 @@ public class App {
 
         String docsPath  = Preconditions.checkNotNull(args[0], "Index Path should not be empty.");
         String indexPath = Preconditions.checkNotNull(args[1], "Index Path should not be empty.");
+        String query     = Preconditions.checkNotNull(args[2], "Query should not be null");
 
         LOGGER.info("docsPath: ", docsPath);
         LOGGER.info("indexPath: ", indexPath);
@@ -75,10 +76,16 @@ public class App {
 
             writer.close();
             Date end = new Date();
-            System.out.println(end.getTime() - start.getTime() + " total milliseconds.");
+            System.out.println("Took " + String.valueOf(end.getTime() - start.getTime()) + " total milliseconds for indexing.");
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println("\n");
+
+        // Start the searching process
+        SearchFiles searchFiles = new SearchFiles(indexPath);
+        searchFiles.searchIndex(query);
     }
 }

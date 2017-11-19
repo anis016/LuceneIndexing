@@ -53,12 +53,11 @@ public class IndexFiles {
         try (InputStream stream = Files.newInputStream(file)) {
 
             Document doc = new Document();
-            Field pathField = new StringField("path", file.toString(), Field.Store.YES);
+            Field pathField = new StringField(LuceneConstants.FIELD_PATH, file.toString(), Field.Store.YES);
             doc.add(pathField);
 
             doc.add(new LongPoint("modified", lastModified));
-
-            doc.add(new TextField("contents",
+            doc.add(new TextField(LuceneConstants.FIELD_CONTENTS,
                     new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))));
 
             if (writer.getConfig().getOpenMode() == IndexWriterConfig.OpenMode.CREATE) {
