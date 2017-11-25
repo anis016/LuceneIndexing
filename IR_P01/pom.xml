@@ -53,6 +53,11 @@
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
 
     </dependencies>
 
@@ -127,7 +132,6 @@
                     </reportSet>
                 </reportSets>
             </plugin>
-
         </plugins>
 
     </reporting>

@@ -54,27 +54,8 @@ public class App {
         Date start = new Date();
         try {
             System.out.println("Indexing to the directory '" + indexPath + "'...");
+            IndexFiles.indexDocuments(docsPath, indexPath);
 
-            // Get the path for the indexing
-            Directory dir = FSDirectory.open(Paths.get(indexPath));
-            Analyzer analyzer = new StandardAnalyzer();
-            IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
-
-            // Create a new index in the directory,
-            // removing any previously indexed documens.
-            iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
-
-            // if needed to add new documents to an existing index,
-            // then do as follows
-            // iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-
-            // control the RAM buffer, if indexing many documents
-            // iwc.setRAMBufferSizeMB(256.0);
-
-            IndexWriter writer = new IndexWriter(dir, iwc);
-            IndexFiles.indexDocs(writer, docDir);
-
-            writer.close();
             Date end = new Date();
             System.out.println("Took " + String.valueOf(end.getTime() - start.getTime()) + " total milliseconds for indexing.");
 

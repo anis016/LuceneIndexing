@@ -1,16 +1,16 @@
 package ir.prog1;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.FSDirectory;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class IndexFiles {
 
@@ -18,55 +18,124 @@ public class IndexFiles {
 
     }
 
+
     /**
-     * Indexes the given file using the given writer, or if a directory is given,
-     * recurses over files and directories found under the given directory.
+     * Reads the file contents
      *
-     * @param writer Writer to the index where the given file/dir info will be stored
-     * @param path The file to index, or the directory to recurse into to find files to index
+     * @param filePath Document path which needs to be read.
      * @throws IOException If there is a low-level I/O error
      */
-    public static void indexDocs(final IndexWriter writer, Path path) throws IOException {
+    public static String readFileContent(String filePath) throws IOException{
+        String content = new String(Files.readAllBytes(Paths.get(filePath)));
+        return content;
+    }
 
-        if (Files.isDirectory(path)) {
+    /**
+     * Recurse over directories and find files under the given directory.
+     *
+     * @param folderPath Document folder which needs to be read.
+     * @param filesList Contains the html files those needs to be indexed
+     */
+    public static void getRecursiveFilesInCurrentDir(String folderPath, ArrayList<File> filesList) {
 
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    indexDoc(writer, file, attrs.lastModifiedTime().toMillis());
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-        } else {
-            indexDoc(writer, path, Files.getLastModifiedTime(path).toMillis());
+        File root = new File(folderPath);
+        File[] files = root.listFiles();
+
+        if (files == null) return;
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                getRecursiveFilesInCurrentDir(file.toString(), filesList);
+            } else {
+                // Filter the files based on "html"
+                if(file.getAbsolutePath().endsWith(".txt"))
+                    filesList.add(file);
+            }
         }
     }
 
     /**
-     * Indexes a single document.
+     * Indexes all the files in the director.
      *
-     * @param writer Writer to the index where the given file/dir info will be stored
-     * @param file The file to index
+     * @param docsPath Document folder which needs to be read.
+     * @param indexPath The index path where indexes will be kept.
      * @throws IOException If there is a low-level I/O error
      */
-    public static void indexDoc(IndexWriter writer, Path file, long lastModified) {
-        try (InputStream stream = Files.newInputStream(file)) {
+    public static void indexDocuments(String docsPath, String indexPath) throws IOException {
 
-            Document doc = new Document();
-            Field pathField = new StringField(LuceneConstants.FIELD_PATH, file.toString(), Field.Store.YES);
-            doc.add(pathField);
+        ArrayList<File> fileList = new ArrayList<>();
+        getRecursiveFilesInCurrentDir(docsPath, fileList);
 
-            doc.add(new LongPoint("modified", lastModified));
-            doc.add(new TextField(LuceneConstants.FIELD_CONTENTS,
-                    new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))));
+        List<Document> documentList = new ArrayList<>();
+        for (File file: fileList) {
+            String content = readFileContent(file.toString());
+            // Divide the Contents into several pieces
+            String title = "title";
+            String body  = content;
+            String path  = file.toString();
 
-            if (writer.getConfig().getOpenMode() == IndexWriterConfig.OpenMode.CREATE) {
-                System.out.println("adding " + file);
-                writer.addDocument(doc);
-            }
+            // Make it document
+            Document document = createDocument(title, body, path);
+            // Add the document to the document Lists
+            documentList.add(document);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Adding File: " + path);
         }
+
+        // Create IndexWriter
+        IndexWriter writer = createWriter(indexPath);
+
+        // first clean the directory
+        writer.deleteAll();
+        writer.addDocuments(documentList);
+
+        writer.commit();
+        writer.close();
+    }
+
+    /**
+     * Create the Document for indexing.
+     *
+     * @param title Title of the document
+     * @param body Body of the document
+     * @param path Path of the document
+     */
+    private static Document createDocument(String title, String body, String path) {
+
+        Document document = new Document();
+        document.add(new StringField(LuceneConstants.FIELD_PATH, path, Field.Store.YES));
+        document.add(new StringField(LuceneConstants.FIELD_TITLE, title, Field.Store.YES));
+        document.add(new TextField(LuceneConstants.FIELD_CONTENTS, body, Field.Store.YES));
+
+        return document;
+    }
+
+    /**
+     * Create the Indexwriter for indexing.
+     *
+     * @param indexPath Index path where the given file/dir info will be stored
+     * @throws IOException If there is a low-level I/O error
+     */
+    private static IndexWriter createWriter(String indexPath) throws IOException {
+
+        // Get the path for the indexing
+        FSDirectory dir = FSDirectory.open(Paths.get(indexPath));
+        Analyzer analyzer = new StandardAnalyzer();
+        IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+
+        // Create a new index in the directory,
+        // removing any previously indexed documents.
+        iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+
+        // if needed to add new documents to an existing index,
+        // then do as follows
+        // iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+
+        // control the RAM buffer, if indexing many documents
+        // iwc.setRAMBufferSizeMB(256.0);
+
+        IndexWriter writer = new IndexWriter(dir, iwc);
+
+        return writer;
     }
 }
