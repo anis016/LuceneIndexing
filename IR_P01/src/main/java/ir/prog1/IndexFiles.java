@@ -70,8 +70,8 @@ public class IndexFiles {
         for (File file: fileList) {
             String content = readFileContent(file.toString());
             // Divide the Contents into several pieces
-            String title = "title";
-            String body  = content;
+            String title = HTMLParser.getTitle(content);
+            String body  = HTMLParser.getCleanedContents(content);
             String path  = file.toString();
 
             // Make it document
