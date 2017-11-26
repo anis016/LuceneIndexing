@@ -48,7 +48,7 @@ public class IndexFiles {
                 getRecursiveFilesInCurrentDir(file.toString(), filesList);
             } else {
                 // Filter the files based on "html"
-                if(file.getAbsolutePath().endsWith(".txt"))
+                if(file.getAbsolutePath().endsWith(LuceneConstants.FILE_EXTENSION))
                     filesList.add(file);
             }
         }
