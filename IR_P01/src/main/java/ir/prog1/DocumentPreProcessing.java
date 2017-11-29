@@ -51,7 +51,7 @@ public class DocumentPreProcessing {
         for (String word : text) {
             if(word.length() <= 1) {
                 continue;
-            } else if (isNumberWholeNumber(word)) {
+            } else if (isWholeNumber(word)) {
                 continue;
             } else {
                 builder.append(word.toLowerCase() + " ");
@@ -66,7 +66,7 @@ public class DocumentPreProcessing {
      * @param word string
      * @return boolean value of true/false
      */
-    public static boolean isNumberWholeNumber(String word) {
+    public static boolean isWholeNumber(String word) {
         int firstLen = word.length();
         int counter = 0;
         for (int i = 0; i < firstLen; i++) {
