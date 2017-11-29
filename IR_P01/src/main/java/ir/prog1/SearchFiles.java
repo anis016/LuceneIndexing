@@ -35,7 +35,8 @@ public class SearchFiles {
         ScoreDoc[] hits;
 
         try {
-            Query query = this.queryParser.parse(searchString);
+            String stemmedQuery = DocumentPreProcessing.dataPreProcessing(searchString);
+            Query query = this.queryParser.parse(stemmedQuery);
 
             TopDocs results = indexSearcher.search(query, LuceneConstants.MAX_SEARH);
             hits = results.scoreDocs;

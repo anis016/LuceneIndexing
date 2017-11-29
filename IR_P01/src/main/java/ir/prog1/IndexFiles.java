@@ -1,7 +1,11 @@
 package ir.prog1;
 
-import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.*;
+import org.apache.lucene.analysis.core.StopAnalyzer;
+import org.apache.lucene.analysis.core.WhitespaceTokenizer;
+import org.apache.lucene.analysis.en.PorterStemFilter;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -10,6 +14,7 @@ import org.apache.lucene.store.FSDirectory;
 import java.io.*;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class IndexFiles {
@@ -68,10 +73,13 @@ public class IndexFiles {
 
         List<Document> documentList = new ArrayList<>();
         for (File file: fileList) {
+
             String content = readFileContent(file.toString());
-            // Divide the Contents into several pieces
-            String title = HTMLParser.getTitle(content);
-            String body  = HTMLParser.getCleanedContents(content);
+            String htmlTitle = HTMLParser.getTitle(content);
+            String htmlBody = HTMLParser.getCleanedContents(content);
+
+            String title = DocumentPreProcessing.dataPreProcessing(htmlTitle);
+            String body  = DocumentPreProcessing.dataPreProcessing(htmlBody);
             String path  = file.toString();
 
             // Make it document
