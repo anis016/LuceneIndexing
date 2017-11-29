@@ -23,6 +23,10 @@ public class SearchFiles {
     Analyzer analyzer = null;
     QueryParser queryParser = null;
 
+    /**
+     * Constructor for building the indexes
+     * @param index path
+     */
     public SearchFiles(String index) throws IOException {
         this.indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
         this.indexSearcher = new IndexSearcher(this.indexReader);
@@ -30,6 +34,10 @@ public class SearchFiles {
         this.queryParser = new QueryParser(LuceneConstants.FIELD_CONTENTS, analyzer);
     }
 
+    /**
+     * Given a query it searches in the indexed path for match
+     * @param searchString
+     */
     public void searchIndex(String searchString) throws IOException {
         System.out.println("Searching for : " + searchString);
         ScoreDoc[] hits;

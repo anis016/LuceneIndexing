@@ -16,6 +16,14 @@ public class HTMLParser {
 
     }
 
+    /**
+     * Get the title from the html document
+     * 1. Search in <title></title> tag.
+     * 2. If (1) could not be read then check for meta property tag for title
+     *
+     * @param html HTML String passed
+     * @return title string
+     */
     public static String getTitle(String html) {
         String title = "";
 
@@ -47,7 +55,7 @@ public class HTMLParser {
      * 2. if the original html contains br or p tags, they gets translated to newline(\n).
      *
      * @param html HTML String passed
-     * @return
+     * @return cleaned contents
      */
     public static String getCleanedContents(String html) {
         
@@ -69,7 +77,7 @@ public class HTMLParser {
      * 2. if the original html contains br or p tags, they gets translated to newline(\n).
      *
      * @param html String
-     * @return
+     * @return cleaned content with tags removed but keeping line breaks
      */
     private static String cleanTagPerservingLineBreaks(String html) {
 
@@ -91,7 +99,7 @@ public class HTMLParser {
     /**
      * Remove extended chars
      * @param str String
-     * @return
+     * @return removed extended characters
      */
     public static String removeExtendedChars(String str) {
         return str.replaceAll("[^\\x00-\\x7F]", " ");
@@ -108,7 +116,6 @@ public class HTMLParser {
         str = str.replaceAll(regex, "");
         return str;
     }
-
 
 
     /**
