@@ -71,6 +71,7 @@ public class IndexFiles {
         ArrayList<File> fileList = new ArrayList<>();
         getRecursiveFilesInCurrentDir(docsPath, fileList);
 
+        int counter = 0;
         List<Document> documentList = new ArrayList<>();
         for (File file: fileList) {
 
@@ -78,14 +79,16 @@ public class IndexFiles {
             String htmlTitle = HTMLParser.getTitle(content);
             String htmlBody = HTMLParser.getCleanedContents(content);
 
+            String id    = String.valueOf(counter);
             String title = DocumentPreProcessing.dataPreProcessing(htmlTitle);
             String body  = DocumentPreProcessing.dataPreProcessing(htmlBody);
             String path  = file.toString();
 
             // Make it document
-            Document document = createDocument(title, body, path);
+            Document document = createDocument(id, title, body, path);
             // Add the document to the document Lists
             documentList.add(document);
+            counter += 1;
 
             System.out.println("Adding File: " + path);
         }
@@ -108,12 +111,16 @@ public class IndexFiles {
      * @param body Body of the document
      * @param path Path of the document
      */
-    private static Document createDocument(String title, String body, String path) {
+    private static Document createDocument(String id, String title, String body, String path) {
+
+        FieldType fieldType = new FieldType(TextField.TYPE_STORED);
+        fieldType.setStoreTermVectors(true);
 
         Document document = new Document();
-        document.add(new StringField(LuceneConstants.FIELD_PATH, path, Field.Store.YES));
+        document.add(new StringField(LuceneConstants.FIELD_ID, id, Field.Store.YES));
         document.add(new StringField(LuceneConstants.FIELD_TITLE, title, Field.Store.YES));
-        document.add(new TextField(LuceneConstants.FIELD_CONTENTS, body, Field.Store.YES));
+        document.add(new Field(LuceneConstants.FIELD_CONTENTS, body, fieldType));
+        document.add(new StringField(LuceneConstants.FIELD_PATH, path, Field.Store.YES));
 
         return document;
     }

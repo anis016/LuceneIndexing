@@ -27,7 +27,7 @@ public class DocumentPreProcessing {
         Tokenizer whiteSpaceTokenizer = new WhitespaceTokenizer();
         whiteSpaceTokenizer.setReader(reader);
         TokenStream tokenStream = new StopFilter(whiteSpaceTokenizer, StopAnalyzer.ENGLISH_STOP_WORDS_SET);
-        tokenStream = new PorterStemFilter(tokenStream);
+        // tokenStream = new PorterStemFilter(tokenStream);
 
         final CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
         tokenStream.reset();
