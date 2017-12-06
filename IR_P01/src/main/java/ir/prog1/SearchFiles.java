@@ -29,6 +29,7 @@ public class SearchFiles {
     /**
      * Initializes a new SearchFiles instance.
      * @param index path
+     * @throws IOException if path value couldnot be read
      */
     public SearchFiles(String index) throws IOException {
         this.indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
@@ -39,7 +40,8 @@ public class SearchFiles {
 
     /**
      * Given a query it searches in the indexed path for match
-     * @param searchString
+     * @param searchString search string
+     * @throws IOException if path value couldnot be read
      */
     public void searchIndex(String searchString) throws IOException {
         System.out.println("Searching for : " + searchString);

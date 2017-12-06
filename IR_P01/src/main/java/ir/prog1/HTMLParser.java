@@ -25,7 +25,7 @@ public class HTMLParser {
 
     /**
      * Get the title from the html document
-     * 1. Search in <title></title> tag.
+     * 1. Search in "title" tag.
      * 2. If (1) could not be read then check for meta property tag for title
      *
      * @param html HTML String passed
@@ -116,7 +116,7 @@ public class HTMLParser {
      * Remove URLs from text
      *
      * @param str String
-     * @return
+     * @return normalized string
      */
     public static String removeUrl(String str) {
         String regex = "\\b(https?|ftp|file|telnet|http|Unsure)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
@@ -127,6 +127,8 @@ public class HTMLParser {
 
     /**
      * Example Driver Program
+     * @param args arguments
+     * @throws IOException if path value couldnot be read
      **/
     public static void main(String... args) throws IOException {
         String htmlString = "<html>" +

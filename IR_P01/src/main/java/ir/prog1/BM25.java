@@ -23,6 +23,7 @@ public class BM25 {
 
     /**
      * Initializes a new BM25 instance.
+     * @param indexPath index path
      */
     public BM25(String indexPath) {
 
@@ -36,6 +37,7 @@ public class BM25 {
     /**
      * Calculates the IDF and TF for the documents indexed
      * @param indexPath indexing path
+     * @throws IOException if path value couldnot be read
      */
     public void calculateIDFandTF(String indexPath) throws IOException {
 

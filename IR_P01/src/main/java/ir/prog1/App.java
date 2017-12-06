@@ -27,7 +27,12 @@ import java.util.*;
 public class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
-    // java -jar IR P01.jar [path to document folder] [path to index folder] [VS/OK] [query]
+    /**
+     * Driver Class
+     * Call: java -jar IR P01.jar [path to document folder] [path to index folder] [VS/OK] [query]
+     * @param args arguments
+     * @throws IOException if path value couldnot be read
+     */
     public static void main(String... args) throws IOException {
 
         if(args.length != 4) {
@@ -69,7 +74,7 @@ public class App {
             if(DirectoryReader.indexExists(directory) == true) {
                 System.out.println("Found indexing files. Reading from the IndexDirectory.");
             }
-            System.out.println("Want to force re-create index directory ? (yes/no): ");
+            System.out.print("Want to force re-create index directory ? (yes/no): ");
 
             Scanner readInput = new Scanner(System.in);
             String enterKey = readInput.nextLine();

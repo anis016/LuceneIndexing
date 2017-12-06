@@ -16,6 +16,7 @@ public final class Preconditions {
      * Checks if the given string is null or empty
      * @param reference: the reference to check for null
      * @param errorMessage: the error message to provide if string is null or empty
+     * @param <T> the type of the reference to check
      * @return the reference if it is null or not
      */
     public static <T> T checkNotNull(T reference, Object errorMessage) {

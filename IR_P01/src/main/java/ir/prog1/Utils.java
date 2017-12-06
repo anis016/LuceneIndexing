@@ -19,6 +19,7 @@ public class Utils {
      * Sorts the matched documents and Prints accordingly.
      * @param indexPath index path
      * @param matchedDocuments matched documents
+     * @throws IOException if path value couldnot be read
      */
     public static void printRankedDocuments(String indexPath, HashMap<String, Double> matchedDocuments) throws IOException {
 

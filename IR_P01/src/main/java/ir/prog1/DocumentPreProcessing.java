@@ -21,8 +21,9 @@ public class DocumentPreProcessing {
     /**
      * Given a text it removes the stopwords given as StopAnalyzer.ENGLISH_STOP_WORDS_SET
      * Also, applies PorterStemmer to each word.
-     * @param text
+     * @param text text
      * @return converted text
+     * @throws IOException if path value couldnot be read
      */
     public static String removeStopWordsAndStemming(String text) throws IOException {
 
@@ -46,7 +47,7 @@ public class DocumentPreProcessing {
 
     /**
      * Remove all the non-words from the sentence(list of strings)
-     * @param text
+     * @param text list of words
      * @return string of sentence
      */
     public static String filterNonWords(List<String> text) {
@@ -90,6 +91,7 @@ public class DocumentPreProcessing {
      * 3. remove stopwords and stemming each word using PorterStemmer
      * @param text paragraph extracted
      * @return pre-processed data
+     * @throws IOException if path value couldnot be read
      */
     public static String dataPreProcessing(String text) throws IOException {
 
@@ -111,6 +113,8 @@ public class DocumentPreProcessing {
 
     /**
      * Example Driver Program
+     * @param args arguments
+     * @throws IOException if path value couldnot be read
      **/
     public static void main(String... args) throws IOException {
         String text = "AWESOME";

@@ -20,6 +20,7 @@ public class VSM {
 
     /**
      * Initializes a new VSM instance.
+     * @param indexPath index path
      */
     public VSM(String indexPath) {
 
@@ -31,6 +32,7 @@ public class VSM {
     /**
      * Calculates the IDF and TF for the documents indexed
      * @param indexPath indexing path
+     * @throws IOException if path value couldnot be read
      */
     public void calculateIDFandTF(String indexPath) throws IOException {
         Directory directory = FSDirectory.open(Paths.get(indexPath));

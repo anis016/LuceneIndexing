@@ -35,6 +35,7 @@ public class IndexFiles {
      *
      * @param filePath Document path which needs to be read.
      * @throws IOException If there is a low-level I/O error
+     * @return contents of the file
      */
     public static String readFileContent(String filePath) throws IOException{
         String content = new String(Files.readAllBytes(Paths.get(filePath)));

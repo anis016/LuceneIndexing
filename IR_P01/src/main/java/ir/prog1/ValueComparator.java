@@ -12,6 +12,7 @@ public class ValueComparator implements Comparator<String> {
 
     /**
      * Initializes a new ValueComparator instance.
+     * @param base mapping of terms and value
      */
     public ValueComparator(Map<String, Double> base) {
         this.base = base;
