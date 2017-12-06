@@ -1,19 +1,21 @@
 1. Way to run:
 
-   1.1 Download any webpage and keep into Documents folder.
+   1.1 Download any webpage or create any webpage of your own and keep into any folder. Ex: Documents
    1.2 Build the artifacts.
        $ mvn clean install
    1.3 Run command.
-       $ java -jar IR P01.jar /home/anis/Documents /home/anis/index
+       $ java -jar IR P01.jar /home/anis/Documents /home/anis/index VS "awesome title"
 
 @COMPLETED:
-1. Parse and Index the HTML documents.
+1. Parse HTML documents.
+2. Index the HTML documents.
+3. Implement Stopwords and PorterStemming.
+4. VSM implementations.
+5. Okapi BM25 implementations.
+5. Print Ranked List.
+6. Searching with multifield search (body+title).
 
 @TODO:
 1. Check for all the documentations.
-2. Check Stemming.
-3. Check VSM and Okapi BM25
-4. Print Ranked List
-5. Searching with multifield search (body+title)
 
 Refer: http://wwwiti.cs.uni-magdeburg.de/iti_dke/Lehre/Materialien/WS2017_2018/IR/programming1.pdf

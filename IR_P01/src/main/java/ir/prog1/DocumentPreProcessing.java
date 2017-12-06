@@ -13,6 +13,9 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Pre-processed the Document for Indexing and Searching.
+ */
 public class DocumentPreProcessing {
 
     /**
@@ -27,7 +30,7 @@ public class DocumentPreProcessing {
         Tokenizer whiteSpaceTokenizer = new WhitespaceTokenizer();
         whiteSpaceTokenizer.setReader(reader);
         TokenStream tokenStream = new StopFilter(whiteSpaceTokenizer, StopAnalyzer.ENGLISH_STOP_WORDS_SET);
-        // tokenStream = new PorterStemFilter(tokenStream);
+        tokenStream = new PorterStemFilter(tokenStream);
 
         final CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
         tokenStream.reset();

@@ -10,29 +10,17 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 
-class ValueComparator implements Comparator<String> {
-    Map<String, Double> base;
-
-    public ValueComparator(Map<String, Double> base) {
-        this.base = base;
-    }
-
-    // Note: this comparator imposes orderings that are inconsistent with
-    // equals.
-    public int compare(String a, String b) {
-        if (base.get(a) >= base.get(b)) {
-            return -1;
-        } else {
-            return 1;
-        } // returning 0 would merge keys
-    }
-}
-
+/**
+ * VSM model for ranked retrieval.
+ */
 public class VSM {
     String indexPath = "";
     HashMap<String, HashMap<String, Integer>> documentTFMappings;
     HashMap<String, Double> invertedDictionary;
 
+    /**
+     * Initializes a new VSM instance.
+     */
     public VSM(String indexPath) {
 
         this.indexPath = indexPath;
@@ -40,7 +28,11 @@ public class VSM {
         this.invertedDictionary = new HashMap<>();
     }
 
-    public String documentSimilarity(String indexPath) throws IOException {
+    /**
+     * Calculates the IDF and TF for the documents indexed
+     * @param indexPath indexing path
+     */
+    public void calculateIDFandTF(String indexPath) throws IOException {
         Directory directory = FSDirectory.open(Paths.get(indexPath));
         IndexReader indexReader = DirectoryReader.open(directory);
 
@@ -55,7 +47,7 @@ public class VSM {
             Document document = indexReader.document(docId);
             String documentContent = new String(document.get(LuceneConstants.FIELD_CONTENTS));
             String documentID = new String(document.get(LuceneConstants.FIELD_ID));
-            System.out.println("Doc:: " + documentID + ", Content: " + documentContent);
+            // System.out.println("Doc:: " + documentID + ", Content: " + documentContent);
 
             TermsEnum iterator = termVector.iterator();
             BytesRef term = null;
@@ -70,7 +62,7 @@ public class VSM {
                     terms.add(termText);
 
                     Double idf = Math.log10((double)numberOfdocs/(double)termFrequency);
-                    if(!invertedDictionary.containsKey(term)) { // this doesn't work.. why ?
+                    if(!invertedDictionary.containsKey(term)) {
                         invertedDictionary.put(termText, idf);
                     }
 
@@ -79,30 +71,18 @@ public class VSM {
                     e.printStackTrace();
                 }
             }
-            HashMap<String, Integer> termFrequency = this.getTermFrequencyOfEachWord(documentContent.trim(), terms);
+            HashMap<String, Integer> termFrequency = Utils.getTermFrequencyOfEachWord(documentContent.trim(), terms);
             this.documentTFMappings.put(documentID, termFrequency);
         }
 
-        return null;
     }
 
-    public HashMap<String, Integer> getTermFrequencyOfEachWord(String document, List<String> terms) {
-        HashMap<String, Integer> termFrequency = new HashMap<>();
-        // Explode the document into an ArrayList
-        String[] tokens = document.split(" ");
-        for(String term : terms) {
-            int count = 0;
-            for (String token : tokens) {
-                if (term.equalsIgnoreCase(token)) {
-                    count ++;
-                }
-            }
-
-            termFrequency.put(term, count);
-        }
-        return termFrequency;
-    }
-
+    /**
+     * Calculates the dot product between two lists (query and the document)
+     * @param v1 document
+     * @param v2 query
+     * @return dot product value
+     */
     public double getDotProduct(List<Double> v1, List<Double> v2) {
         int listSize = v1.size();
         double sum = 0.0;
@@ -112,6 +92,12 @@ public class VSM {
         return sum;
     }
 
+    /**
+     * Normalizes the score of two lists (query and the document)
+     * @param v1 document
+     * @param v2 query
+     * @return normalized value
+     */
     public double getNormalize(List<Double> v1, List<Double> v2) {
         int listSize = v1.size();
         double sum1 = 0.0;
@@ -127,6 +113,12 @@ public class VSM {
         return Math.sqrt(sum1 * sum2);
     }
 
+    /**
+     * Calculates the cosine score (dotproduct/normalize) for the query and the document.
+     * @param v1 document
+     * @param v2 query
+     * @return score
+     */
     public double cosineSimilarity(HashMap<String, Double> v1, HashMap<String, Double> v2) {
         List<Double> lv1 = new ArrayList<>();
         for(Map.Entry<String, Double> entry : v1.entrySet()) {
@@ -144,6 +136,12 @@ public class VSM {
         return dotProduct/normalize;
     }
 
+    /**
+     * Flattens the query and document lists and get all the unique keys
+     * @param document document
+     * @param query query
+     * @return set of keys
+     */
     public Set getFlattenTerms(HashMap<String, Integer> document, HashMap<String, Integer> query) {
         Set words = new HashSet();
 
@@ -158,6 +156,12 @@ public class VSM {
         return words;
     }
 
+    /**
+     * Creates the TFIDF Document Matrix
+     * @param uniqueKeySets All the keys of query and document
+     * @param document document
+     * @return TFIDF Matrix
+     */
     public HashMap<String, Double> createTFIDFDocumentQueryMatrix(Set uniqueKeySets, HashMap<String, Integer> document) {
         HashMap<String, Double> tfIDFDictionary = new HashMap<>();
 
@@ -186,54 +190,13 @@ public class VSM {
         return tfIDFDictionary;
     }
 
-    public HashMap<String, Integer> makeQuery(String document) {
-        Set words = new HashSet();
-        List<String> tokens = Arrays.asList(document.trim().split(" "));
-        for (String token : tokens) {
-            words.add(token);
-        }
-
-        HashMap<String, Integer> termFrequency = new HashMap<>();
-        for(Object object : words) {
-            String term = (String) object;
-            int count = 0;
-            for (String token : tokens) {
-                if (term.equalsIgnoreCase(token)) {
-                    count ++;
-                }
-            }
-            termFrequency.put(term, count);
-        }
-
-        return termFrequency;
-    }
-
-    public void printRankedDocuments(String indexPath, HashMap<String, Double> matchedDocuments) throws IOException {
-        ValueComparator bvc = new ValueComparator(matchedDocuments);
-        TreeMap<String, Double> sorted_map = new TreeMap<String, Double>(bvc);
-
-        sorted_map.putAll(matchedDocuments);
-
-        Directory directory = FSDirectory.open(Paths.get(indexPath));
-        IndexReader indexReader = DirectoryReader.open(directory);
-
-        for (Map.Entry<String, Double> entry : sorted_map.entrySet()) {
-            int key = Integer.parseInt(entry.getKey());
-            Document document = indexReader.document(key);
-            String documentID = new String(document.get(LuceneConstants.FIELD_ID));
-            String documentContents = new String(document.get(LuceneConstants.FIELD_CONTENTS));
-
-            System.out.println("Matching document: " + documentID + " with contents: " + documentContents.trim() + ", Similarity Score: " + entry.getValue());
-        }
-    }
-
-    public static void main(String... args) throws IOException {
+    /*public static void main(String... args) throws IOException {
 
         String indexPath = "/home/anis/index";
         VSM vsm = new VSM(indexPath);
-        vsm.documentSimilarity(vsm.indexPath);
+        vsm.documentIndexing(indexPath);
         String query = DocumentPreProcessing.dataPreProcessing("to berlin girl");
-        HashMap<String, Integer> hashedQuery = vsm.makeQuery(query);
+        HashMap<String, Integer> hashedQuery = Utils.makeQuery(query);
 
         HashMap<String, Double> matchedDocument = new HashMap<>();
         for (Map.Entry<String, HashMap<String, Integer>> document : vsm.documentTFMappings.entrySet()) {
@@ -251,59 +214,9 @@ public class VSM {
                 score = Double.parseDouble(String.format("%.5f", score));
                 matchedDocument.put(documentId, score);
             }
-            System.out.println("Matching document: " + documentId + " with Query: " + query + ", Similarity Score: " + similarityScore);
+            // System.out.println("Matching document: " + documentId + " with Query: " + query + ", Similarity Score: " + similarityScore);
         }
 
-        vsm.printRankedDocuments(indexPath, matchedDocument);
-
-        /*for (Map.Entry<Integer, HashMap<String, Integer>> document : vsm.documentTFMappings.entrySet()) {
-            Integer docId = document.getKey();
-            HashMap<String, Integer> value = document.getValue();
-
-            if (docId == 0) {
-                for (Map.Entry<Integer, HashMap<String, Integer>> document2 : vsm.documentTFMappings.entrySet()) {
-                    Integer docId2 = document2.getKey();
-                    HashMap<String, Integer> value2 = document2.getValue();
-
-                    if (docId2 == 1) {
-                        Set flattenUniqueTerms = getFlattenTerms(value, value2);
-                        HashMap<String, Double> doc1 = vsm.createTFIDFDocumentQueryMatrix(flattenUniqueTerms, value);
-                        HashMap<String, Double> doc2 = vsm.createTFIDFDocumentQueryMatrix(flattenUniqueTerms, value2);
-
-                        double result = vsm.cosineSimilarity(doc1, doc2);
-                        System.out.println(result);
-                        break;
-                    }
-                }
-            }
-        }*/
-
-        /*for (Map.Entry<Integer, HashMap<String, Integer>> document : vsm.documentTFMappings.entrySet()) {
-            Integer docId = document.getKey();
-            HashMap<String, Integer> value = document.getValue();
-
-            for(Map.Entry<String, Integer> entry : value.entrySet()) {
-                String term = entry.getKey();
-                Integer frequency = entry.getValue();
-
-                System.out.println("DocID: " + docId + ", Term: " + term + ", Frequency: " + frequency);
-            }
-        }
-
-        for(Map.Entry<String, Double> dictionary : vsm.invertedDictionary.entrySet()) {
-            String keyTerm = dictionary.getKey();
-            Double idf = dictionary.getValue();
-
-            System.out.println("KeyTerm: " + keyTerm + ", IDF: " + idf);
-        }*/
-
-        /*StandardAnalyzer analyzer = new StandardAnalyzer();
-        CharArraySet stopwords = analyzer.getStopwordSet();
-        Iterator iterator = stopwords.iterator();
-        while (iterator.hasNext()){
-            char[] charStopword = (char[]) iterator.next();
-            String stopword = new String(charStopword);
-            System.out.println(stopword);
-        }*/
-    }
+        Utils.printRankedDocuments(indexPath, matchedDocument);
+    }*/
 }

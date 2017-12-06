@@ -10,8 +10,15 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 
+/**
+ * Parsing and Retrieving fields and value from HTML.
+ */
 public class HTMLParser {
 
+
+    /**
+     * Initializes a new HTMLParser instance.
+     */
     HTMLParser() {
 
     }

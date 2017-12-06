@@ -17,8 +17,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Indexes the documents
+ */
 public class IndexFiles {
 
+    /**
+     * Initializes a new IndexFiles instance.
+     */
     IndexFiles() {
 
     }
@@ -85,7 +91,7 @@ public class IndexFiles {
             String path  = file.toString();
 
             // Make it document
-            Document document = createDocument(id, title, body, path);
+            Document document = createDocument(id, title, htmlTitle, body, path);
             // Add the document to the document Lists
             documentList.add(document);
             counter += 1;
@@ -111,7 +117,7 @@ public class IndexFiles {
      * @param body Body of the document
      * @param path Path of the document
      */
-    private static Document createDocument(String id, String title, String body, String path) {
+    private static Document createDocument(String id, String title, String htmlTitle, String body, String path) {
 
         FieldType fieldType = new FieldType(TextField.TYPE_STORED);
         fieldType.setStoreTermVectors(true);
@@ -119,6 +125,7 @@ public class IndexFiles {
         Document document = new Document();
         document.add(new StringField(LuceneConstants.FIELD_ID, id, Field.Store.YES));
         document.add(new StringField(LuceneConstants.FIELD_TITLE, title, Field.Store.YES));
+        document.add(new StringField(LuceneConstants.FIELD_HTML_TITLE, htmlTitle, Field.Store.YES));
         document.add(new Field(LuceneConstants.FIELD_CONTENTS, body, fieldType));
         document.add(new StringField(LuceneConstants.FIELD_PATH, path, Field.Store.YES));
 

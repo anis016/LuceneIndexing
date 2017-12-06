@@ -1,7 +1,13 @@
 package ir.prog1;
 
+/**
+ * Provides functionality for checking preconditions before calling a function.
+ */
 public final class Preconditions {
 
+    /**
+     * Initializes a new Preconditions instance.
+     */
     private Preconditions() {
 
     }

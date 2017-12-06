@@ -16,6 +16,9 @@ import org.apache.lucene.store.FSDirectory;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+/**
+ * Searches the given query from the indexed documents.
+ */
 public class SearchFiles {
 
     IndexReader indexReader = null;
@@ -24,7 +27,7 @@ public class SearchFiles {
     QueryParser queryParser = null;
 
     /**
-     * Constructor for building the indexes
+     * Initializes a new SearchFiles instance.
      * @param index path
      */
     public SearchFiles(String index) throws IOException {
