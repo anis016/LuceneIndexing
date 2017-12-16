@@ -34,8 +34,11 @@ public class Utils {
         IndexReader indexReader = DirectoryReader.open(directory);
         int counter = 0;
 
+        if(matchedDocuments.size() > 10) {
+            System.out.println("Printing first 10 Relevant documents.");
+        }
         for (Map.Entry<String, Double> entry : sorted_map.entrySet()) {
-            if (counter == 10)
+            if (counter >= 10)
                 break;
 
             int key = Integer.parseInt(entry.getKey());

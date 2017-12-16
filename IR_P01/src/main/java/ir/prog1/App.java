@@ -19,11 +19,10 @@ import java.util.*;
  * Using Lucene Version: 7.1.0
  * Team Name: TeamIndexer
  * Team Member:
- * 01. Roshmitha Reddy
+ * 01. Roshmitha Thummala
  * 02. S.M. Andalib Hossain
  * 03. Sayed Anisul Hoque
  */
-
 public class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
@@ -36,7 +35,8 @@ public class App {
     public static void main(String... args) throws IOException {
 
         if(args.length != 4) {
-            LOGGER.error("Usage: java -jar IR_PO1.jar [path to document folder] [path to index folder] [VS/OK] [query]");
+            // LOGGER.error("Usage: java -jar IR_PO1.jar [path to document folder] [path to index folder] [VS/OK] [query]");
+            System.out.println("Usage: java -jar IR_PO1.jar [path to document folder] [path to index folder] [VS/OK] [query]");
             throw new IllegalArgumentException("Incorrect number of arguments provided (4 expected, " + args.length
                     + " provided): " + Arrays.toString(args));
         }
@@ -104,9 +104,6 @@ public class App {
 
             System.out.println("\n");
         }
-
-        // SearchFiles searchFiles = new SearchFiles(indexPath);
-        // searchFiles.searchIndex(query);
 
         // Start the Ranking process using given Model (VSM/Okapi BM25)
         System.out.println("Searching for : " + userQuery);
