@@ -23,8 +23,7 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-/.idea/
-/target/
-/dependency-reduced-pom.xml
-/IR_P01.iml
+IR_P02.iml
+target/
+dependency-reduced-pom.xml
 .idea

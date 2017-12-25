@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/IR_P02/IR_P02.iml" filepath="$PROJECT_DIR$/IR_P02/IR_P02.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/IR_Tasks.iml" filepath="$PROJECT_DIR$/.idea/IR_Tasks.iml" />
+    </modules>
+  </component>
+</project>
