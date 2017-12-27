@@ -8,15 +8,13 @@ import java.nio.file.Path;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
 
 public class App {
 
     public static void main(String... args) throws IOException {
 
-        if(args.length != 3) {
+        if(args.length != 4) {
             // LOGGER.error("Usage: java -jar IR_PO1.jar [path to document folder] [path to index folder] [VS/OK] [query]");
             System.out.println("java -jar IR P02.jar [seed URL] [crawl depth] [path to index folder] [query]");
             throw new IllegalArgumentException("Incorrect number of arguments provided (4 expected, " + args.length
@@ -27,10 +25,10 @@ public class App {
         String seedURL    = Preconditions.checkNotNull(args[0], "Seed URL should not be null.");
         String crawlDepth = Preconditions.checkNotNull(args[1], "Crawl depth should not be null.");
         String indexPath  = Preconditions.checkNotNull(args[2], "Index path should not be null");
-        // String userQuery  = Preconditions.checkNotNull(args[3], "Query should not be null");
+        String userQuery  = Preconditions.checkNotNull(args[3], "Query should not be null");
 
-        // int depth = Integer.parseInt(crawlDepth);
-        int depth = 2;
+        int depth = Integer.parseInt(crawlDepth);
+        // int depth = 2;
 
         // Check if user wants re-create the index or use the existing indexing folder.
         boolean flag;
@@ -75,5 +73,31 @@ public class App {
 
             System.out.println("\n");
         }
+
+        System.out.println("\nSearching for : " + userQuery);
+        VSM vsm = new VSM(indexPath);
+        vsm.calculateIDFandTF(indexPath);
+        String query = DocumentPreProcessing.dataPreProcessing(userQuery);
+        HashMap<String, Integer> hashedQuery = Utils.makeQuery(query);
+
+        HashMap<String, Double> matchedDocument = new HashMap<>();
+        for (Map.Entry<String, HashMap<String, Integer>> document : vsm.documentTFMappings.entrySet()) {
+            String documentId = document.getKey();
+            HashMap<String, Integer> value = document.getValue();
+
+            Set flattenUniqueTerms = vsm.getFlattenTerms(value, hashedQuery);
+
+            HashMap<String, Double> doc = vsm.createTFIDFDocumentQueryMatrix(flattenUniqueTerms, value);
+            HashMap<String, Double> q   = vsm.createTFIDFDocumentQueryMatrix(flattenUniqueTerms, hashedQuery);
+
+            double similarityScore = vsm.cosineSimilarity(doc, q);
+            if (similarityScore > 0.0) {
+                Double score = similarityScore;
+                score = Double.parseDouble(String.format("%.5f", score));
+                matchedDocument.put(documentId, score);
+            }
+        }
+
+        Utils.printRankedDocuments(indexPath, matchedDocument);
     }
 }

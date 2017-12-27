@@ -108,7 +108,7 @@ public class DocumentPreProcessing {
         String processedBody = DocumentPreProcessing.removeStopWordsAndStemming(body);
         // System.out.println("Removed stop words and stemmed: " + processedBody);
 
-        return processedBody;
+        return processedBody.trim();
     }
 
     /**

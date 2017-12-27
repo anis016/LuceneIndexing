@@ -275,7 +275,7 @@ public class URLIndexer {
                             .followRedirects(true)
                             .ignoreHttpErrors(true).get().html();
 
-                    indexDocument(counter, htmlFile, normalizedLink, indexWriter);
+                    indexDocument(visited.size(), htmlFile, normalizedLink, indexWriter);
 
                     dfsLinksTraversal(normalizedLink, bufferedWriter, indexWriter, visited, count + 1);
                 }

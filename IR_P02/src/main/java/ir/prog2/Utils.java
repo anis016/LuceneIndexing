@@ -23,7 +23,7 @@ public class Utils {
      */
     public static void printRankedDocuments(String indexPath, HashMap<String, Double> matchedDocuments) throws IOException {
 
-        System.out.println("Searched query matched with total " + matchedDocuments.size() + " documents.\n");
+        System.out.println("Searched query matched with total " + matchedDocuments.size() + " indexed documents.\n");
 
         ValueComparator bvc = new ValueComparator(matchedDocuments);
         TreeMap<String, Double> sorted_map = new TreeMap<String, Double>(bvc);
@@ -35,7 +35,7 @@ public class Utils {
         int counter = 0;
 
         if(matchedDocuments.size() > 10) {
-            System.out.println("Printing first 10 Relevant documents.");
+            System.out.println("Printing first 10 Relevant Webpages.");
         }
         for (Map.Entry<String, Double> entry : sorted_map.entrySet()) {
             if (counter >= 10)
@@ -43,11 +43,11 @@ public class Utils {
 
             int key = Integer.parseInt(entry.getKey());
             Document document = indexReader.document(key);
-            String documentID = new String(document.get(LuceneConstants.FIELD_ID));
+            // String documentID = new String(document.get(LuceneConstants.FIELD_ID));
             String documentHTMLTitle = new String(document.get(LuceneConstants.FIELD_HTML_TITLE));
             String documentUrl = new String(document.get(LuceneConstants.FIELD_URL));
 
-            System.out.println("Rank: " + (counter+1) + ", Title: " + documentHTMLTitle.trim() + ", Relevance Score: " + entry.getValue() + ", Path: " + documentUrl);
+            System.out.println("Rank: " + (counter+1) + ", Title: " + documentHTMLTitle.trim() + ", URL: " + documentUrl + ", Relevance Score: " + entry.getValue());
             counter ++;
         }
     }
