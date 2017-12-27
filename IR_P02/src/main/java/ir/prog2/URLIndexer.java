@@ -1,6 +1,5 @@
 package ir.prog2;
 
-import me.tongfei.progressbar.ProgressBar;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Field;
@@ -27,6 +26,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Indexes the given seeder url till the given depth
+ */
 public class URLIndexer {
 
     // Related to Jsoup
@@ -42,6 +44,11 @@ public class URLIndexer {
     private static int counter = 1;
     private static char[] animationChars = new char[]{'+', 'x'};
 
+    /**
+     * Initializes a new URLIndexer instance.
+     * @param depth crawling depth
+     * @param url the seeder url
+     */
     public URLIndexer(int depth, String url) {
         this.maxDepth = depth;
         this.url = url;
@@ -66,9 +73,13 @@ public class URLIndexer {
         return writer;
     }
 
-    // URL Normalizations
-    // https://en.wikipedia.org/wiki/URL_normalization#Normalizations_that_preserve_semantics
+    /**
+     * Normalizes a malformed URL to a Standard format using Rules.
+     * @param malformedUrl URL that needs to be normalized
+     * @throws MalformedURLException
+     */
     public String urlNormalization(String malformedUrl) throws MalformedURLException {
+
         /*String text1 = "http://www.Example.com";
         String text2 = "HTTP://www.EXAMPLE.com:8080/a%c2%b1b";
         String text3 = "http://www.Example.com:80/%7Eusername/";*/
@@ -135,6 +146,12 @@ public class URLIndexer {
         folder.delete();
     }
 
+    /**
+     * Crawls and Indexes all the crawled files in the director.
+     *
+     * @param indexDir index directory where the indexing needs to be done
+     * @throws IOException If there is a low-level I/O error
+     */
     public void startFetchingAndIndexing(String indexDir) throws IOException {
 
         if (indexDir.endsWith("/")) {
@@ -204,6 +221,16 @@ public class URLIndexer {
         System.out.println("\n\nIndexing Completed");
     }
 
+    /**
+     * Recursively traverses all the found link with crawling depth condition
+     *
+     * @param url current url
+     * @param bufferedWriter writer for writing in the file
+     * @param indexWriter writer for writing the index
+     * @param visited list of urls that are visited
+     * @param count depth of the recursion
+     * @throws MalformedURLException For Malformed URL error
+     */
     private void dfsLinksTraversal(String url, BufferedWriter bufferedWriter,
                                    IndexWriter indexWriter, List<String> visited,
                                    int count) throws MalformedURLException {
@@ -276,7 +303,6 @@ public class URLIndexer {
                             .ignoreHttpErrors(true).get().html();
 
                     indexDocument(visited.size(), htmlFile, normalizedLink, indexWriter);
-
                     dfsLinksTraversal(normalizedLink, bufferedWriter, indexWriter, visited, count + 1);
                 }
             }
@@ -288,6 +314,15 @@ public class URLIndexer {
         }
     }
 
+    /**
+     * Indexes the file
+     *
+     * @param counter document id
+     * @param htmlFile parsed html file
+     * @param url url
+     * @param writer index writer
+     * @throws IOException If there is a low-level I/O error
+     */
     public void indexDocument(long counter, String htmlFile, String url, IndexWriter writer) throws IOException {
 
         String htmlTitle = HTMLParser.getTitle(htmlFile);
@@ -305,6 +340,7 @@ public class URLIndexer {
     /**
      * Create the Document for indexing.
      *
+     * @param id id of the document
      * @param title Title of the document
      * @param htmlTitle HTML Title of the document
      * @param body Body of the document

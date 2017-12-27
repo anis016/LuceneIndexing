@@ -5,13 +5,27 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 import java.nio.file.Path;
-
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Main Class for the Web Search Engine using Lucene
+ * Using Lucene Version: 7.1.0
+ * Team Name: TeamIndexer
+ * Team Member:
+ * 01. Roshmitha Thummala
+ * 02. S.M. Andalib Hossain
+ * 03. Sayed Anisul Hoque
+ */
 public class App {
 
+    /**
+     * Driver Class
+     * Call: java -jar IR P02.jar [seed URL] [crawl depth] [path to index folder] [query]
+     * @param args arguments
+     * @throws IOException if path value could not be read
+     */
     public static void main(String... args) throws IOException {
 
         if(args.length != 4) {
@@ -21,14 +35,13 @@ public class App {
                     + " provided): " + Arrays.toString(args));
         }
 
-        // check for empty/null and fetch parameter
+        // check for empty/null and fetch parameters
         String seedURL    = Preconditions.checkNotNull(args[0], "Seed URL should not be null.");
         String crawlDepth = Preconditions.checkNotNull(args[1], "Crawl depth should not be null.");
         String indexPath  = Preconditions.checkNotNull(args[2], "Index path should not be null");
         String userQuery  = Preconditions.checkNotNull(args[3], "Query should not be null");
 
         int depth = Integer.parseInt(crawlDepth);
-        // int depth = 2;
 
         // Check if user wants re-create the index or use the existing indexing folder.
         boolean flag;
