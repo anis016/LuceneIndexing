@@ -120,6 +120,11 @@ public class URLIndexer {
                 normalizedURL = normalizedURL.substring(0, normalizedURL.lastIndexOf("/"));
             }
 
+            // Rule 3: Remove the '#' from the end
+            if (normalizedURL.endsWith("#")) {
+                normalizedURL = normalizedURL.substring(0, normalizedURL.lastIndexOf("#"));
+            }
+
         } catch (URISyntaxException e) {
             throw new MalformedURLException(e.getMessage());
         }
@@ -185,7 +190,6 @@ public class URLIndexer {
             bufferedWriter = new BufferedWriter(fileWriter);
 
             // Adding the seeder URL depth = 0 and Make it Normalized
-            bufferedWriter.write(urlNormalization(this.url) + "\t" + 0 + "\n");
             String normalizedURL = urlNormalization(this.url);
             Document document = Jsoup.connect(normalizedURL)
                     .ignoreContentType(true)
@@ -196,10 +200,13 @@ public class URLIndexer {
                     .followRedirects(true)
                     .ignoreHttpErrors(true).get();
             String htmlFile = document.html();
-            indexDocument(1, htmlFile, normalizedURL, indexWriter);
+            indexDocument(0, htmlFile, normalizedURL, indexWriter);
+            bufferedWriter.write(normalizedURL + "\t" + 0 + "\n");
 
             List<String> visitedUrls = new ArrayList<>();
             dfsLinksTraversal(normalizedURL, bufferedWriter, indexWriter, visitedUrls, 1);
+
+            // System.out.println(visitedUrls.size());
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -218,7 +225,7 @@ public class URLIndexer {
         indexWriter.commit();
         indexWriter.close();
 
-        System.out.println("\n\nIndexing Completed");
+        System.out.println("\nIndexing Completed");
     }
 
     /**
@@ -263,9 +270,8 @@ public class URLIndexer {
                 string
                         .append('\r')
                         .append(String.format("Fetching %c |", animationChars[counter % 2]))
-                        .append(String.format(" Number of Documents Fetched: %3d |", counter))
-                        .append(String.format(" Number of Documents Indexed: %3d", visited.size()));
-
+                        .append(String.format(" Documents Fetched: %3d |", counter))
+                        .append(String.format(" Documents Indexed: %3d ", visited.size()));
                 System.out.print(string);
 
                 String link = element.absUrl("href");
@@ -292,7 +298,6 @@ public class URLIndexer {
                 // System.out.println("link: " + link + ", valid: " + validLink + ", depth: " + count);
                 if ( !visited.contains(normalizedLink) ) {
 
-                    bufferedWriter.write(normalizedLink + "\t" + count + "\n");
                     String htmlFile = Jsoup.connect(normalizedLink)
                             .ignoreContentType(true)
                             .method(Connection.Method.GET)
@@ -303,6 +308,7 @@ public class URLIndexer {
                             .ignoreHttpErrors(true).get().html();
 
                     indexDocument(visited.size(), htmlFile, normalizedLink, indexWriter);
+                    bufferedWriter.write(normalizedLink + "\t" + count + "\n");
                     dfsLinksTraversal(normalizedLink, bufferedWriter, indexWriter, visited, count + 1);
                 }
             }
@@ -334,6 +340,8 @@ public class URLIndexer {
 
         // Make it a Lucene document
         org.apache.lucene.document.Document document = createDocument(id, title, htmlTitle, body, url);
+
+        // System.out.println("Adding: " + url);
         writer.addDocument(document);
     }
 

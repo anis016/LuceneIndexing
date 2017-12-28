@@ -22,7 +22,7 @@ public class App {
 
     /**
      * Driver Class
-     * Call: java -jar IR P02.jar [seed URL] [crawl depth] [path to index folder] [query]
+     * Call: java -jar IR_P02.jar [seed URL] [crawl depth] [path to index folder] [query]
      * @param args arguments
      * @throws IOException if path value could not be read
      */
@@ -42,6 +42,7 @@ public class App {
         String userQuery  = Preconditions.checkNotNull(args[3], "Query should not be null");
 
         int depth = Integer.parseInt(crawlDepth);
+        URLIndexer urlIndexer = new URLIndexer(depth, seedURL);
 
         // Check if user wants re-create the index or use the existing indexing folder.
         boolean flag;
@@ -52,15 +53,17 @@ public class App {
             Directory directory = FSDirectory.open(Paths.get(indexPath));
             if(DirectoryReader.indexExists(directory) == true) {
                 System.out.println("Found indexing files. Reading from the IndexDirectory.");
-            }
-            System.out.print("Want to force re-create index directory ? (yes/no): ");
+                System.out.print("Want to force re-create index directory ? (yes/no): ");
 
-            Scanner readInput = new Scanner(System.in);
-            String enterKey = readInput.nextLine();
-            if (enterKey.equalsIgnoreCase("yes") ||  enterKey.equalsIgnoreCase("y")) {
-                flag = true;
+                Scanner readInput = new Scanner(System.in);
+                String enterKey = readInput.nextLine();
+                if (enterKey.equalsIgnoreCase("yes") ||  enterKey.equalsIgnoreCase("y")) {
+                    flag = true;
+                } else {
+                    flag = false;
+                }
             } else {
-                flag = false;
+                flag = true;
             }
         } else {
             flag = true;
@@ -69,25 +72,19 @@ public class App {
         if (flag) {
 
             // Start the indexing process
-            Date start = new Date();
             try {
                 System.out.println("Indexing to the directory '" + indexPath + "'..." + "\n");
 
                 // Start the fetching of documents.
-                URLIndexer urlIndexer = new URLIndexer(depth, seedURL);
                 urlIndexer.startFetchingAndIndexing(indexPath);
-
-                Date end = new Date();
-                System.out.println("Took " + String.valueOf(end.getTime() - start.getTime()) + " total milliseconds for indexing.");
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            System.out.println("\n");
         }
 
-        System.out.println("\nSearching for : " + userQuery);
+        System.out.println("\nSeeder URL: " + urlIndexer.urlNormalization(seedURL) );
+        System.out.println("Searching for : " + userQuery + "\n");
         VSM vsm = new VSM(indexPath);
         vsm.calculateIDFandTF(indexPath);
         String query = DocumentPreProcessing.dataPreProcessing(userQuery);
