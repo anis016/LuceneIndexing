@@ -85,9 +85,10 @@ public class App {
 
         System.out.println("\nSeeder URL: " + urlIndexer.urlNormalization(seedURL) );
         System.out.println("Searching for : " + userQuery + "\n");
+        String query = DocumentPreProcessing.dataPreProcessing(userQuery);
+
         VSM vsm = new VSM(indexPath);
         vsm.calculateIDFandTF(indexPath);
-        String query = DocumentPreProcessing.dataPreProcessing(userQuery);
         HashMap<String, Integer> hashedQuery = Utils.makeQuery(query);
 
         HashMap<String, Double> matchedDocument = new HashMap<>();

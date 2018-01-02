@@ -76,7 +76,6 @@ public class VSM {
             HashMap<String, Integer> termFrequency = Utils.getTermFrequencyOfEachWord(documentContent.trim(), terms);
             this.documentTFMappings.put(documentID, termFrequency);
         }
-
     }
 
     /**

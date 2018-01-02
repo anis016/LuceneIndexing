@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/IR_P02/IR_P02.iml" filepath="$PROJECT_DIR$/IR_P02/IR_P02.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/IR_Tasks.iml" filepath="$PROJECT_DIR$/.idea/IR_Tasks.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LuceneTuts/LuceneTuts.iml" filepath="$PROJECT_DIR$/LuceneTuts/LuceneTuts.iml" />
     </modules>
   </component>
 </project>
