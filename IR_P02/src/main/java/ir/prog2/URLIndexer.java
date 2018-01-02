@@ -10,6 +10,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
 import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -41,6 +42,7 @@ public class URLIndexer {
     private String url;
 
     // Related to Fetching Animation
+    private static int found404Error = 0;
     private static int counter = 1;
     private static char[] animationChars = new char[]{'+', 'x'};
 
@@ -208,7 +210,7 @@ public class URLIndexer {
 
             // System.out.println(visitedUrls.size());
         } catch (IOException e) {
-            e.printStackTrace();
+            // ignore
 
         } finally {
             try {
@@ -236,11 +238,10 @@ public class URLIndexer {
      * @param indexWriter writer for writing the index
      * @param visited list of urls that are visited
      * @param count depth of the recursion
-     * @throws MalformedURLException For Malformed URL error
      */
     private void dfsLinksTraversal(String url, BufferedWriter bufferedWriter,
                                    IndexWriter indexWriter, List<String> visited,
-                                   int count) throws MalformedURLException {
+                                   int count) {
 
         // mark current node as visited.
         visited.add(url);
@@ -271,7 +272,7 @@ public class URLIndexer {
                         .append('\r')
                         .append(String.format("Fetching %c |", animationChars[counter % 2]))
                         .append(String.format(" Documents Fetched: %3d |", counter))
-                        .append(String.format(" Documents Indexed: %3d ", visited.size()));
+                        .append(String.format(" Documents Indexed: %3d ", visited.size() - found404Error));
                 System.out.print(string);
 
                 String link = element.absUrl("href");
@@ -298,22 +299,30 @@ public class URLIndexer {
                 // System.out.println("link: " + link + ", valid: " + validLink + ", depth: " + count);
                 if ( !visited.contains(normalizedLink) ) {
 
-                    String htmlFile = Jsoup.connect(normalizedLink)
-                            .ignoreContentType(true)
-                            .method(Connection.Method.GET)
-                            .userAgent(USER_AGENT)
-                            .referrer(RFERRRER)
-                            .timeout(TIME_OUT)
-                            .followRedirects(true)
-                            .ignoreHttpErrors(true).get().html();
+                    try {
+                        String htmlFile = Jsoup.connect(normalizedLink)
+                                .ignoreContentType(true)
+                                .method(Connection.Method.GET)
+                                .userAgent(USER_AGENT)
+                                .referrer(RFERRRER)
+                                .timeout(TIME_OUT)
+                                .followRedirects(true).get().html();
+                        // .ignoreHttpErrors(true).get().html();
 
-                    indexDocument(visited.size(), htmlFile, normalizedLink, indexWriter);
-                    bufferedWriter.write(normalizedLink + "\t" + count + "\n");
+                        indexDocument(visited.size(), htmlFile, normalizedLink, indexWriter);
+                        bufferedWriter.write(normalizedLink + "\t" + count + "\n");
+
+                    } catch (HttpStatusException he) {
+                        // 404 error is caught ! and we won't index it.
+                        found404Error++;
+                    }
                     dfsLinksTraversal(normalizedLink, bufferedWriter, indexWriter, visited, count + 1);
                 }
             }
 
         } catch (SocketTimeoutException ste) {
+
+        } catch (HttpStatusException he) {
 
         } catch (IOException ioe) {
 
