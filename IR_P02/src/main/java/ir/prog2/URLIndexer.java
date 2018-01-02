@@ -36,13 +36,13 @@ public class URLIndexer {
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
     private static final String RFERRRER = "http://www.google.com";
     private static final int TIME_OUT = 12 * 1000; // 12 seconds
+    private static int indexCount = 0;
 
     // Related to URL and Depth
     private int maxDepth;
     private String url;
 
     // Related to Fetching Animation
-    private static int found404Error = 0;
     private static int counter = 1;
     private static char[] animationChars = new char[]{'+', 'x'};
 
@@ -203,7 +203,9 @@ public class URLIndexer {
                     .ignoreHttpErrors(true).get();
             String htmlFile = document.html();
             indexDocument(0, htmlFile, normalizedURL, indexWriter);
+            // System.out.println("Indexed " + "link: " + normalizedURL + ", docId: " + indexCount);
             bufferedWriter.write(normalizedURL + "\t" + 0 + "\n");
+            indexCount++;
 
             List<String> visitedUrls = new ArrayList<>();
             dfsLinksTraversal(normalizedURL, bufferedWriter, indexWriter, visitedUrls, 1);
@@ -242,7 +244,6 @@ public class URLIndexer {
     private void dfsLinksTraversal(String url, BufferedWriter bufferedWriter,
                                    IndexWriter indexWriter, List<String> visited,
                                    int count) {
-
         // mark current node as visited.
         visited.add(url);
         // System.out.println("Visited Node: " + url);
@@ -272,7 +273,7 @@ public class URLIndexer {
                         .append('\r')
                         .append(String.format("Fetching %c |", animationChars[counter % 2]))
                         .append(String.format(" Documents Fetched: %3d |", counter))
-                        .append(String.format(" Documents Indexed: %3d ", visited.size() - found404Error));
+                        .append(String.format(" Documents Indexed: %3d ", indexCount));
                 System.out.print(string);
 
                 String link = element.absUrl("href");
@@ -309,12 +310,14 @@ public class URLIndexer {
                                 .followRedirects(true).get().html();
                         // .ignoreHttpErrors(true).get().html();
 
-                        indexDocument(visited.size(), htmlFile, normalizedLink, indexWriter);
+                        indexDocument(indexCount, htmlFile, normalizedLink, indexWriter);
+                        // System.out.println("Indexed " + "link: " + link + ", docId: " + indexCount);
                         bufferedWriter.write(normalizedLink + "\t" + count + "\n");
+                        indexCount++;
 
                     } catch (HttpStatusException he) {
                         // 404 error is caught ! and we won't index it.
-                        found404Error++;
+                        // System.out.println("Not Indexed " + "link: " + link + ", docId: " + indexCount);
                     }
                     dfsLinksTraversal(normalizedLink, bufferedWriter, indexWriter, visited, count + 1);
                 }

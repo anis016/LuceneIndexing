@@ -33,9 +33,11 @@ public class Utils {
         Directory directory = FSDirectory.open(Paths.get(indexPath));
         IndexReader indexReader = DirectoryReader.open(directory);
         int counter = 0;
+        // System.out.println("total indexed: " + indexReader.numDocs());
 
         if(matchedDocuments.size() > 10) {
             System.out.println("Printing first 10 Relevant Webpages.");
+            System.out.println("------------------------------------\n");
         }
         for (Map.Entry<String, Double> entry : sorted_map.entrySet()) {
             if (counter >= 10)

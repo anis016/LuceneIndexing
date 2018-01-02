@@ -73,6 +73,7 @@ public class App {
 
             // Start the indexing process
             try {
+                System.out.println("\nSeeder URL: " + urlIndexer.urlNormalization(seedURL));
                 System.out.println("Indexing to the directory '" + indexPath + "'..." + "\n");
 
                 // Start the fetching of documents.
@@ -83,8 +84,7 @@ public class App {
             }
         }
 
-        System.out.println("\nSeeder URL: " + urlIndexer.urlNormalization(seedURL) );
-        System.out.println("Searching for : " + userQuery + "\n");
+        System.out.println("\nSearching for : " + userQuery);
         String query = DocumentPreProcessing.dataPreProcessing(userQuery);
 
         VSM vsm = new VSM(indexPath);
